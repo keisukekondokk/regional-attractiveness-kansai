@@ -19,8 +19,8 @@ dashboardPage(
         "github",
         label = "",
         icon = icon("github"),
-        href = "https://github.com/keisukekondokk/person-trip-kansai",
-        onclick = "window.open('https://github.com/keisukekondokk/person-trip-kansai', '_blank')"
+        href = "https://github.com/keisukekondokk/regional-attractiveness-kansai",
+        onclick = "window.open('https://github.com/keisukekondokk/regional-attractiveness-kansai', '_blank')"
       ),
       class = "dropdown"
     )

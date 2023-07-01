@@ -18,7 +18,7 @@ server <- function(input, output) {
   output$map1 <- renderLeaflet({
 
     #TMAP
-    tp <- 
+    tp <-
       sfPoly %>%
       dplyr::mutate(b_delta_total = if_else(b_delta_total > 0, NA_real_, b_delta_total)) %>%
       tm_shape() +
@@ -28,34 +28,37 @@ server <- function(input, output) {
         alpha = 0.5,
         palette = "-Oranges",
         n = 9,
-        style = "quantile",
-        id = "odzoneCode",
+        style = "fixed",
+        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        id = "muni_name",
         popup.vars = c(
-          "都道府県コード" = "pref_code", 
-          "都道府県名" = "pref_name", 
-          "市町村コード" = "muni_code", 
-          "市町村名" = "muni_name", 
-          "ゾーンコード" = "id_odzone", 
-          "地域魅力度指数" = "b_delta_total"),
+          "都道府県コード" = "pref_code",
+          "都道府県名" = "pref_name",
+          "市町村コード" = "muni_code",
+          "市町村名" = "muni_name",
+          "ゾーンコード" = "id_odzone",
+          "地域魅力度指数" = "b_delta_total"
+        ),
         popup.format = list(
           muni_code = list(big.mark = ""),
           id_odzone = list(big.mark = ""),
           b_delta_total = list(digits = 4)
-          ),
-        title = paste("地域魅力度指数", "（全トリップ）", sep = "<br>")
+        ),
+        title = paste("地域魅力度指数", "（全トリップ）", sep = "<br>"),
+        group = "地域魅力度指数マップ"
       ) +
-      tm_borders(
-        lwd = 0.25
-      ) +
+      tm_borders(lwd = 0.25) +
       tm_shape(sfMuni) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 1.0) +
+      tm_borders(lwd = 1.5,
+                 group = "市区町村境界") +
       tm_shape(sfPref) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 2.0) 
+      tm_borders(lwd = 3.0,
+                 group = "都道府県境界") 
       
     #Leaflet from tmap
-    lf <- tmap_leaflet(tp)
+    lf <- tmap_leaflet(tp, in.shiny = TRUE)
     lf %>%
       #Tile Layer from Mapbox
       addMapboxGL(accessToken = accessToken,
@@ -69,7 +72,7 @@ server <- function(input, output) {
   output$map2 <- renderLeaflet({
     
     #TMAP
-    tp <- 
+    tp <-
       sfPoly %>%
       dplyr::mutate(b_delta_office = if_else(b_delta_office > 0, NA_real_, b_delta_office)) %>%
       tm_shape() +
@@ -79,34 +82,37 @@ server <- function(input, output) {
         alpha = 0.5,
         palette = "-Oranges",
         n = 9,
-        style = "quantile",
-        id = "odzoneCode",
+        style = "fixed",
+        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        id = "muni_name",
         popup.vars = c(
-          "都道府県コード" = "pref_code", 
-          "都道府県名" = "pref_name", 
-          "市町村コード" = "muni_code", 
-          "市町村名" = "muni_name", 
-          "ゾーンコード" = "id_odzone", 
-          "地域魅力度指数" = "b_delta_office"),
+          "都道府県コード" = "pref_code",
+          "都道府県名" = "pref_name",
+          "市町村コード" = "muni_code",
+          "市町村名" = "muni_name",
+          "ゾーンコード" = "id_odzone",
+          "地域魅力度指数" = "b_delta_office"
+        ),
         popup.format = list(
           muni_code = list(big.mark = ""),
           id_odzone = list(big.mark = ""),
           b_delta_office = list(digits = 4)
         ),
-        title = paste("地域魅力度指数", "（出勤トリップ）", sep = "<br>")
+        title = paste("地域魅力度指数", "（出勤トリップ）", sep = "<br>"),
+        group = "地域魅力度指数マップ"
       ) +
-      tm_borders(
-        lwd = 0.25
-      ) +
+      tm_borders(lwd = 0.25) +
       tm_shape(sfMuni) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 1.0) +
+      tm_borders(lwd = 1.5,
+                 group = "市区町村境界") +
       tm_shape(sfPref) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 2.0) 
+      tm_borders(lwd = 3.0,
+                 group = "都道府県境界") 
     
     #Leaflet from tmap
-    lf <- tmap_leaflet(tp)
+    lf <- tmap_leaflet(tp, in.shiny = TRUE)
     lf %>%
       #Tile Layer from Mapbox
       addMapboxGL(accessToken = accessToken,
@@ -130,8 +136,9 @@ server <- function(input, output) {
         alpha = 0.5,
         palette = "-Oranges",
         n = 9,
-        style = "quantile",
-        id = "odzoneCode",
+        style = "fixed",
+        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code", 
           "都道府県名" = "pref_name", 
@@ -144,20 +151,21 @@ server <- function(input, output) {
           id_odzone = list(big.mark = ""),
           b_delta_school = list(digits = 4)
         ),
-        title = paste("地域魅力度指数", "（登校トリップ）", sep = "<br>")
+        title = paste("地域魅力度指数", "（登校トリップ）", sep = "<br>"),
+        group = "地域魅力度指数マップ"
       ) +
-      tm_borders(
-        lwd = 0.25
-      ) +
+      tm_borders(lwd = 0.25) +
       tm_shape(sfMuni) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 1.0) +
+      tm_borders(lwd = 1.5,
+                 group = "市区町村境界") +
       tm_shape(sfPref) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 2.0) 
+      tm_borders(lwd = 3.0,
+                 group = "都道府県境界") 
     
     #Leaflet from tmap
-    lf <- tmap_leaflet(tp)
+    lf <- tmap_leaflet(tp, in.shiny = TRUE)
     lf %>%
       #Tile Layer from Mapbox
       addMapboxGL(accessToken = accessToken,
@@ -181,8 +189,9 @@ server <- function(input, output) {
         alpha = 0.5,
         palette = "-Oranges",
         n = 9,
-        style = "quantile",
-        id = "odzoneCode",
+        style = "fixed",
+        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code", 
           "都道府県名" = "pref_name", 
@@ -195,20 +204,21 @@ server <- function(input, output) {
           id_odzone = list(big.mark = ""),
           b_delta_free = list(digits = 4)
         ),
-        title = paste("地域魅力度指数", "（自由トリップ）", sep = "<br>")
+        title = paste("地域魅力度指数", "（自由トリップ）", sep = "<br>"),
+        group = "地域魅力度指数マップ"
       ) +
-      tm_borders(
-        lwd = 0.25
-      ) +
+      tm_borders(lwd = 0.25) +
       tm_shape(sfMuni) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 1.0) +
+      tm_borders(lwd = 1.5,
+                 group = "市区町村境界") +
       tm_shape(sfPref) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 2.0) 
+      tm_borders(lwd = 3.0,
+                 group = "都道府県境界") 
     
     #Leaflet from tmap
-    lf <- tmap_leaflet(tp)
+    lf <- tmap_leaflet(tp, in.shiny = TRUE)
     lf %>%
       #Tile Layer from Mapbox
       addMapboxGL(accessToken = accessToken,
@@ -232,8 +242,9 @@ server <- function(input, output) {
         alpha = 0.5,
         palette = "-Oranges",
         n = 9,
-        style = "quantile",
-        id = "odzoneCode",
+        style = "fixed",
+        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code", 
           "都道府県名" = "pref_name", 
@@ -246,20 +257,21 @@ server <- function(input, output) {
           id_odzone = list(big.mark = ""),
           b_delta_business = list(digits = 4)
         ),
-        title = paste("地域魅力度指数", "（業務トリップ）", sep = "<br>")
+        title = paste("地域魅力度指数", "（業務トリップ）", sep = "<br>"),
+        group = "地域魅力度指数マップ"
       ) +
-      tm_borders(
-        lwd = 0.25
-      ) +
+      tm_borders(lwd = 0.25) +
       tm_shape(sfMuni) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 1.0) +
+      tm_borders(lwd = 1.5,
+                 group = "市区町村境界") +
       tm_shape(sfPref) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 2.0) 
+      tm_borders(lwd = 3.0,
+                 group = "都道府県境界") 
     
     #Leaflet from tmap
-    lf <- tmap_leaflet(tp)
+    lf <- tmap_leaflet(tp, in.shiny = TRUE)
     lf %>%
       #Tile Layer from Mapbox
       addMapboxGL(accessToken = accessToken,
@@ -283,8 +295,9 @@ server <- function(input, output) {
         alpha = 0.5,
         palette = "-Oranges",
         n = 9,
-        style = "quantile",
-        id = "odzoneCode",
+        style = "fixed",
+        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code", 
           "都道府県名" = "pref_name", 
@@ -297,20 +310,21 @@ server <- function(input, output) {
           id_odzone = list(big.mark = ""),
           b_delta_home = list(digits = 4)
         ),
-        title = paste("地域魅力度指数", "（帰宅トリップ）", sep = "<br>")
+        title = paste("地域魅力度指数", "（帰宅トリップ）", sep = "<br>"),
+        group = "地域魅力度指数マップ"
       ) +
-      tm_borders(
-        lwd = 0.25
-      ) +
+      tm_borders(lwd = 0.25) +
       tm_shape(sfMuni) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 1.0) +
+      tm_borders(lwd = 1.5,
+                 group = "市区町村境界") +
       tm_shape(sfPref) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 2.0) 
+      tm_borders(lwd = 3.0,
+                 group = "都道府県境界") 
     
     #Leaflet from tmap
-    lf <- tmap_leaflet(tp)
+    lf <- tmap_leaflet(tp, in.shiny = TRUE)
     lf %>%
       #Tile Layer from Mapbox
       addMapboxGL(accessToken = accessToken,
@@ -334,8 +348,9 @@ server <- function(input, output) {
         alpha = 0.5,
         palette = "-Oranges",
         n = 9,
-        style = "quantile",
-        id = "odzoneCode",
+        style = "fixed",
+        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code", 
           "都道府県名" = "pref_name", 
@@ -348,20 +363,23 @@ server <- function(input, output) {
           id_odzone = list(big.mark = ""),
           b_delta_unknown = list(digits = 4)
         ),
-        title = paste("地域魅力度指数", "（不明トリップ）", sep = "<br>")
+        title = paste("地域魅力度指数", "（不明トリップ）", sep = "<br>"),
+        group = "地域魅力度指数マップ"
       ) +
       tm_borders(
         lwd = 0.25
       ) +
       tm_shape(sfMuni) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 1.0) +
+      tm_borders(lwd = 1.5,
+                 group = "市区町村境界") +
       tm_shape(sfPref) +
       tm_basemap(NULL) +
-      tm_borders(lwd = 2.0) 
+      tm_borders(lwd = 3.0,
+                 group = "都道府県境界") 
     
     #Leaflet from tmap
-    lf <- tmap_leaflet(tp)
+    lf <- tmap_leaflet(tp, in.shiny = TRUE)
     lf %>%
       #Tile Layer from Mapbox
       addMapboxGL(accessToken = accessToken,

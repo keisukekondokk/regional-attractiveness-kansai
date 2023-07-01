@@ -12,7 +12,7 @@ dashboardPage(
   #++++++++++++++++++++++++++++++++++++++
   #Header
   dashboardHeader(
-    title = "地域魅力度指数",
+    title = "地域魅力度指数マップ",
     titleWidth = 300,
     tags$li(
       actionLink(
@@ -126,16 +126,17 @@ dashboardPage(
       tabItem(
         tabName = "info",
         fluidRow(
-          style = "margin-bottom: -20px; margin-left: -30px; margin-right: -30px;",
+          style = "margin-bottom: -15px; margin-left: -30px; margin-right: -30px;",
           column(
             width = 12,
             box(
               width = NULL,
               title = h2(span(icon("info-circle"), "はじめに")),
               solidHeader = TRUE,
+              p("2023年7月2日更新", align = "right"),
               p("2023年3月31日公開", align = "right"),
               #------------------------------------------------------------------
-              h3(style = "border-bottom: solid 1px black;", span(icon("pencil-square"), "本サイトの説明")),
+              h3(style = "border-bottom: solid 1px black;", span(icon("pen-square"), "本サイトの説明")),
               p("Kondo (2023)において提案した人流データから推定する地域魅力度指数を可視化しています。"),
               #------------------------------------------------------------------
               h3(style = "border-bottom: solid 1px black;", span(icon("user-circle"), "作成者")),
@@ -144,7 +145,7 @@ dashboardPage(
               p("神戸大学経済経営研究所・准教授"),
               h3(style = "border-bottom: solid 1px black;", span(icon("envelope-open"), "連絡先")),
               p("Email: kondo-keisuke@rieti.go.jp"),
-              h3(style = "border-bottom: solid 1px black;", span(icon("file-text"), "利用規約")),
+              h3(style = "border-bottom: solid 1px black;", span(icon("file-alt"), "利用規約")),
               p(
                 "当サイトで公開している情報（以下「コンテンツ」）は、どなたでも自由に利用できます。コンテンツ利用に当たっては、本利用規約に同意したものとみなします。本利用規約の内容は、必要に応じて事前の予告なしに変更されることがありますので、必ず最新の利用規約の内容をご確認ください。"
               ),
@@ -164,8 +165,8 @@ dashboardPage(
               p(
                 "URL: ",
                 a(
-                  href = "https://stopcovid19.metro.tokyo.lg.jp/",
-                  "https://stopcovid19.metro.tokyo.lg.jp/",
+                  href = "https://www.kkr.mlit.go.jp/plan/pt/",
+                  "https://www.kkr.mlit.go.jp/plan/pt/",
                   .noWS = "outside"
                 ),
                 .noWS = c("after-begin", "before-end")
@@ -174,14 +175,14 @@ dashboardPage(
               p(
                 "URL: ",
                 a(
-                  href = "https://www.e-stat.go.jp/",
-                  "https://www.e-stat.go.jp/",
+                  href = "https://nlftp.mlit.go.jp/ksj/index.html",
+                  "https://nlftp.mlit.go.jp/ksj/index.html",
                   .noWS = "outside"
                 ),
                 .noWS = c("after-begin", "before-end")
               ),
               #------------------------------------------------------------------
-              h3(style = "border-bottom: solid 1px black;", span(icon("database"), "参考文献")),
+              h3(style = "border-bottom: solid 1px black;", span(icon("book"), "参考文献")),
               p(
                 "Kondo, Keisuke (2023) Measuring the Attractiveness of Trip Destinations: A Study of the Kansai Region, RIEB Discussion Paper Series No.2023-07"
               ),

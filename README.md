@@ -4,10 +4,10 @@
 
 ### 地域魅力度指数の可視化
 
-Kondo (2023)において提案した人流データから推定する地域魅力度指数を可視化しています。
-URL: https://keisuke-kondo.shinyapps.io/
+Kondo (2023)において提案した人流データから推定する地域魅力度指数を可視化しています。  
+URL: https://keisuke-kondo.shinyapps.io/regional-attractiveness-kansai
 
-[![地域魅力度指数](www/regional-attractiveness-kansai.png "COVID-19 in Tokyo")](https://keisuke-kondo.shinyapps.io/regional-attractiveness-kansai)
+[![地域魅力度指数](www/regional-attractiveness-kansai.png "Regional Attractiveness Index in Kansai")](https://keisuke-kondo.shinyapps.io/regional-attractiveness-kansai)
 
 ### 参考文献
 Kondo, K. (2023) "Measuring the Attractiveness of Trip Destinations: A Study of the Kansai Region," RIEB Discussion Paper Series No.2023-07  
@@ -37,17 +37,18 @@ URL: https://www.kkr.mlit.go.jp/plan/pt/
 近畿圏パーソントリップ調査の詳細は上記サイトを参照のこと。
 
 ### 国土数値情報（国土交通省）
-URL: https://www.e-stat.go.jp/
+URL: https://nlftp.mlit.go.jp/ksj/index.html
 
 上記サイトより、「４．交通、パーソントリップ・交通変動量」より、「発生・集中量（ポリゴン）（ライン）」および「OD量（ポリゴン）（ライン）」のデータを取得。
 
 ## 作成者
 近藤恵介  
 独立行政法人経済産業研究所、上席研究員  
-神戸大学経済経営研究所　准教授  
+神戸大学経済経営研究所、准教授  
 Email: kondo-keisuke@rieti.go.jp  
 URL: https://keisukekondokk.github.io/  
 
-## 履歴
+## 更新履歴
 
-2023年3月31日　GitHub公開、利用規約改定  
+2023年11月10日　誤植修正  
+2023年3月31日　GitHub公開  

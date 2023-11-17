@@ -29,7 +29,7 @@ server <- function(input, output) {
         palette = "-Oranges",
         n = 9,
         style = "fixed",
-        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
         id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code",
@@ -83,7 +83,7 @@ server <- function(input, output) {
         palette = "-Oranges",
         n = 9,
         style = "fixed",
-        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
         id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code",
@@ -137,7 +137,7 @@ server <- function(input, output) {
         palette = "-Oranges",
         n = 9,
         style = "fixed",
-        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
         id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code", 
@@ -190,7 +190,7 @@ server <- function(input, output) {
         palette = "-Oranges",
         n = 9,
         style = "fixed",
-        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
         id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code", 
@@ -243,7 +243,7 @@ server <- function(input, output) {
         palette = "-Oranges",
         n = 9,
         style = "fixed",
-        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
         id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code", 
@@ -296,7 +296,7 @@ server <- function(input, output) {
         palette = "-Oranges",
         n = 9,
         style = "fixed",
-        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
         id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code", 
@@ -349,7 +349,7 @@ server <- function(input, output) {
         palette = "-Oranges",
         n = 9,
         style = "fixed",
-        breaks = c(-8.0, -3.5, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, -0.1),
+        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
         id = "muni_name",
         popup.vars = c(
           "都道府県コード" = "pref_code", 

@@ -1,4 +1,4 @@
-# Regional Attractiveness Index
+# Measuring the Attractiveness of Trip Destinations: A Study of the Kansai Region of Japan (RIEB DP No. 2023-07)
 
 ## Shiny Web App
 

@@ -1,54 +1,57 @@
-# 地域魅力度指数の開発：近畿パーソントリップ調査による分析
+# Regional Attractiveness Index
 
-## Shinyウェブアプリケーション
+## Shiny Web App
 
-### 地域魅力度指数の可視化
+### Visualizaion
 
-Kondo (2023)において提案した人流データから推定する地域魅力度指数を可視化しています。  
+This web app visualizes the regional attractiveness index, estimated from mobility data. The concept is proposed in Kondo (2023).  
 URL: https://keisuke-kondo.shinyapps.io/regional-attractiveness-kansai
 
 [![地域魅力度指数](www/regional-attractiveness-kansai.png "Regional Attractiveness Index in Kansai")](https://keisuke-kondo.shinyapps.io/regional-attractiveness-kansai)
 
-### 参考文献
-Kondo, K. (2023) "Measuring the Attractiveness of Trip Destinations: A Study of the Kansai Region," RIEB Discussion Paper Series No.2023-07  
+### Reference
+Kondo, K. (2023) "Measuring the Attractiveness of Trip Destinations: A Study of the Kansai Region of Japan," RIEB Discussion Paper Series No.2023-07  
 URL: https://www.rieb.kobe-u.ac.jp/academic/ra/dp/English/dp2023-07.html
 
-## 利用規約
-当サイトで公開している情報（以下「コンテンツ」）は、どなたでも自由に利用できます。コンテンツ利用に当たっては、本利用規約に同意したものとみなします。本利用規約の内容は、必要に応じて事前の予告なしに変更されることがありますので、必ず最新の利用規約の内容をご確認ください。
+## Terms of Use
+Users (hereinafter referred to as the User or Users depending on context) of the content on this web site (hereinafter referred to as the Content) are required to conform to the terms of use described herein (hereinafter referred to as the Terms of Use). Furthermore, use of the Content constitutes agreement by the User with the Terms of Use. The content of the Terms of Use is subject to change without prior notice.
 
-### 著作権
-本コンテンツの著作権は、近藤恵介に帰属します。
+### Copyright
+The copyright of the developed code belongs to Keisuke Kondo.
 
-### 第三者の権利
-本コンテンツは、「パーソントリップ調査」および、「国土数値情報」の情報に基づいて作成しています。本コンテンツを利用する際は、第三者の権利を侵害しないようにしてください。
+### Copyright of Third Parties
+Keisuke Kondo developed the Content based on the information on the 2010 Person Trip Survey of Kinki Metropolitan Area and the From-To Analysis of the Regional Economy and Society Analyzing System (RESAS). The original data of From-To Analysis is based on Mobile Spatial Statistics® of NTT DOCOMO. The shapefiles were taken from the Digital National Land Information (MLIT of Japan) and the Portal Site of Official Statistics of Japan, e-Stat. Users must confirm the terms of use of the RESAS and the e-Stat, prior to using the Content.
 
-### 免責事項
+### Disclaimer
 <ul>
-<li>作成にあたり細心の注意を払っていますが、本サイトの内容の完全性・正確性・有用性等についていかなる保証を行うものでありません。</li>
-<li>本サイトを利用したことによるすべての障害・損害・不具合等、作成者および作成者の所属するいかなる団体・組織とも、一切の責任を負いません。</li>
-<li>本サイトは、事前の予告なく変更、移転、削除等が行われることがあります。</li>
+<li>Keisuke Kondo makes the utmost effort to maintain, but nevertheless does not guarantee, the accuracy, completeness, integrity, usability, and recency of the Content.</li>
+<li> Keisuke Kondo and any organization to which Keisuke Kondo belongs hereby disclaim responsibility and liability for any loss or damage that may be incurred by Users as a result of using the Content. Keisuke Kondo and any organization to which Keisuke Kondo belongs are neither responsible nor liable for any loss or damage that a User of the Content may cause to any third party as a result of using the Content</li>
+<li>The Content may be modified, moved or deleted without prior notice.</li>
 </ul>
 
-## データ出所
+## Data Sources
 
-### 第5回近畿圏パーソントリップ調査（京阪神都市圏交通計画協議会）
+### 2010 Person Trip Survey of Kinki Metropolitan Area (Keihanshin Metropolitan Area Transportation Planning Council)
 URL: https://www.kkr.mlit.go.jp/plan/pt/
 
-近畿圏パーソントリップ調査の詳細は上記サイトを参照のこと。
-
-### 国土数値情報（国土交通省）
+### Digital National Land Information (MLIT of Japan)
 URL: https://nlftp.mlit.go.jp/ksj/index.html
 
-上記サイトより、「４．交通、パーソントリップ・交通変動量」より、「発生・集中量（ポリゴン）（ライン）」および「OD量（ポリゴン）（ライン）」のデータを取得。
+### From-To Analysis: RESAS API
+URL: https://opendata.resas-portal.go.jp/docs/api/v1/partner/docomo/destination.html
 
-## 作成者
-近藤恵介  
-独立行政法人経済産業研究所、上席研究員  
-神戸大学経済経営研究所、准教授  
+### Shapefile of Japanese Prefectures and Municipalities (e-Stat, Portal Site of Official Statistics of Japan)
+URL: https://www.e-stat.go.jp/
+
+## Author
+Keisuke Kondo  
+Senior Fellow, Research Institute of Economy, Trade and Industry (RIETI)  
+Associate Professor, Research Institute for Economics and Business Administration (RIEB), Kobe University  
 Email: kondo-keisuke@rieti.go.jp  
 URL: https://keisukekondokk.github.io/  
 
-## 更新履歴
+## Update History
 
-2023年11月10日　誤植修正  
-2023年3月31日　GitHub公開  
+January 1, 2024: English version Uploaded  
+November 10, 2023: Typo fixed  
+March 31, 2023: Released on GitHub  

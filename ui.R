@@ -1,6 +1,7 @@
 # 
 # (C) Keisuke Kondo
 # Release Date: 2023-03-31
+# Updated Date: 2024-01-01
 # 
 # - global.R
 # - ui.R
@@ -12,7 +13,7 @@ dashboardPage(
   #++++++++++++++++++++++++++++++++++++++
   #Header
   dashboardHeader(
-    title = "地域魅力度指数マップ",
+    title = "Regional Attractiveness Index",
     titleWidth = 300,
     tags$li(
       actionLink(
@@ -29,139 +30,278 @@ dashboardPage(
   #SideBar
   dashboardSidebar(width = 300,
                    sidebarMenu(
-                     menuItem("地域魅力度指数（合計トリップ）",
-                              tabName = "tab_map1",
+                     id = "sidebar_switch",
+                     menuItem("Map (Person Trip Survey)",
+                              tabName = "tab_pts1",
                               icon = icon("map")),
-                     menuItem("地域魅力度指数（出勤トリップ）",
-                              tabName = "tab_map2",
+                     menuItem("Map (Mobile Phone Data)",
+                              tabName = "tab_mss1",
                               icon = icon("map")),
-                     menuItem("地域魅力度指数（登校トリップ）",
-                              tabName = "tab_map3",
+                     menuItem("Time Series (Mobile Phone Data)",
+                              tabName = "tab_mss2",
                               icon = icon("map")),
-                     menuItem("地域魅力度指数（自由トリップ）",
-                              tabName = "tab_map4",
-                              icon = icon("map")),
-                     menuItem("地域魅力度指数（業務トリップ）",
-                              tabName = "tab_map5",
-                              icon = icon("map")),
-                     menuItem("地域魅力度指数（帰宅トリップ）",
-                              tabName = "tab_map6",
-                              icon = icon("map")),
-                     menuItem("地域魅力度指数（不明トリップ）",
-                              tabName = "tab_map7",
-                              icon = icon("map")),
-                     menuItem("はじめに",
-                              tabName = "info",
+                     menuItem("Readme",
+                              tabName = "readme",
                               icon = icon("info-circle"))
                    )),
   #++++++++++++++++++++++++++++++++++++++
   #Body
   dashboardBody(
     tags$style(type = "text/css", "html, body {margin: 0; width: 100%; height: 100%}"),
-    tags$style(type = "text/css", "h2 {margin-top: 30px}"),
-    tags$style(type = "text/css", "h3, h4 {margin-top: 20px}"),
+    tags$style(type = "text/css", "h2 {margin-top: 20px; margin-bottom: 5px}"),
+    tags$style(type = "text/css", "h3, h4 {margin-top: 15px; margin-bottom: 3px}"),
     tags$style(
       type = "text/css",
-      "#map1, #map2, #map3, #map4, #map5, #map6, #map7 {margin: 0; height: calc(100vh - 50px) !important;}"
+      "#map1, #map2 {margin: 0; height: calc(100vh - 50px) !important;}"
+    ),
+    tags$style(
+      type = "text/css",
+      ".panel {padding: 5px; background-color: #FFFFFF; opacity: 0.7;} .panel:hover {opacity: 1;}"
+    ),
+    tags$style(
+      type = "text/css",
+      "body {overflow-y: scroll;}"
     ),
     #++++++++++++++++++++++++++++++++++++++
-    #Tab
+    #TabItems
     tabItems(
+      #------------------------------------------------------------------
+      #Tab1
       tabItem(
-        tabName = "tab_map1",
+        tabName = "tab_pts1",
         fluidRow(
           style = "margin-top: -20px; margin-bottom: -20px;",
+          absolutePanel(
+            id = "panel_map1",
+            class = "panel panel-default",
+            top = "15vh",
+            bottom = "auto",
+            left = "auto",
+            right = "auto",
+            width = 220,
+            height = "auto",
+            draggable = TRUE,
+            style = "z-index: 100;",
+            radioButtons(
+              "map1_button",
+              label = h4(span(icon("person-walking"), "Select trip type:")),
+              choices = list(
+                "Total Trips" = 1,
+                "Commuting to Office" = 2,
+                "Commuting to School" = 3,
+                "Free Trips" = 4,
+                "Business Trips" = 5,
+                "Returning to Home" = 6,
+                "Unknown Trips" = 7
+              ),
+              selected = 1,
+              width = "100%"
+            )
+          ),
           leafletOutput("map1") %>%
             withSpinner(color = getOption("spinner.color", default = "#3C8EBC"))
         )
       ),
+      #------------------------------------------------------------------
+      #Tab2
       tabItem(
-        tabName = "tab_map2",
+        tabName = "tab_mss1",
         fluidRow(
           style = "margin-top: -20px; margin-bottom: -20px;",
+          absolutePanel(
+            id = "panel_map2",
+            class = "panel panel-default",
+            top = "15vh",
+            bottom = "auto",
+            left = "auto",
+            right = "auto",
+            width = 220,
+            height = "auto",
+            draggable = TRUE,
+            style = "z-index:10;",
+            airDatepickerInput(
+              "listMapDate",
+              label = h4(span(icon("calendar"), "Select year and month:")),
+              value = "2016-08-01",
+              min = "2015-09-01",
+              max = "2016-08-01",
+              view = "months",
+              minView = "months",
+              dateFormat = "MMMM yyyy",
+              autoClose = TRUE
+            ),
+            radioButtons(
+              "listMapDay",
+              label = h4(span(icon("business-time"), "Select day type:")),
+              choices = list(
+                "Weekday" = 1,
+                "Weekend/Holiday" = 2
+              ),
+              selected = 1,
+              width = "100%"
+            ),
+            #
+            radioButtons(
+              "listMapGender",
+              label = h4(span(
+                icon("user"), "Select gender type:"
+              )),
+              choices = list(
+                "Total" = 0,
+                "Male" = 1,
+                "Female" = 2
+              ),
+              selected = 0,
+              width = "100%"
+            ),
+            # Slider bar for Infectious State
+            radioButtons(
+              "listMapAge",
+              label = h4(span(icon("users"), "Select age gruop:")),
+              choices = list(
+                "Total" = 0,
+                "15-39" = 1,
+                "40-59" = 2,
+                "60 and over" = 3
+              ),
+              selected = 0,
+              width = "100%"
+            ),
+            div(
+              actionButton(
+                inputId = "buttonMapUpdate", 
+                label = span(icon("play-circle"), "Update"), 
+                width = "100%",
+                class = "btn btn-primary"
+              )
+            )
+          ),
           leafletOutput("map2") %>%
             withSpinner(color = getOption("spinner.color", default = "#3C8EBC"))
         )
       ),
+      #------------------------------------------------------------------
+      #Tab3
       tabItem(
-        tabName = "tab_map3",
+        tabName = "tab_mss2",
         fluidRow(
-          style = "margin-top: -20px; margin-bottom: -20px;",
-          leafletOutput("map3") %>%
-            withSpinner(color = getOption("spinner.color", default = "#3C8EBC"))
+          style = "margin-top: -20px; margin-bottom: -10px;",
+          column(
+            width = 12,
+            div(style = "margin-top: 10px")
+          ),
+          column(
+            width = 6,
+            selectInput(
+              "listLineMuni1",
+              width = "100%",
+              label = h4(span(icon("chart-line"), "Select Municipality for Baseline (Solid Line)")),
+              choices = listMuni,
+              selected = "28110 兵庫県 神戸市中央区"
+            )
+          ),
+          column(
+            width = 6,
+            selectInput(
+              "listLineMuni2",
+              width = "100%",
+              label = h4(span(icon("chart-line"), "Select Municipality for Comparison (Dashed Line)")),
+              choices = listMuni,
+              selected = "27104 大阪府 大阪市此花区"
+            )
+          ),
+          column(
+            width = 6,
+            radioButtons(
+              "listLineGender",
+              width = "100%",
+              label = h4(span(icon("chart-line"), "Select Gender Type:")),
+              choices = list(
+                "Total" = 0,
+                "Male" = 1,
+                "Female" = 2
+              ),
+              selected = 0,
+              inline = TRUE
+            )
+          ),
+          column(
+            width = 6,
+            radioButtons(
+              "listLineAge",
+              width = "100%",
+              label = h4(span(icon("chart-line"), "Select Age Group:")),
+              choices = list(
+                "Total" = 0,
+                "15-39" = 1,
+                "40-59" = 2,
+                "60 and over" = 3
+              ),
+              selected = 0,
+              inline = TRUE
+            )
+          ),
+          column(
+            width = 12,
+            style = "margin-bottom: 20px; color: white;",
+            actionButton(
+              "buttonLineUpdate", 
+              span(icon("play-circle"), "Update"), 
+              class = "btn btn-primary",
+              width = "100%"
+            )
+          ),
+          box(
+            title = "Regional Attractiveness Index",
+            width = 12,
+            highchartOutput("line1", height = "520px") %>%
+              withSpinner(color = getOption("spinner.color", default = "#3C8EBC"))
+          )
         )
       ),
+      #------------------------------------------------------------------
+      #Tab4
       tabItem(
-        tabName = "tab_map4",
-        fluidRow(
-          style = "margin-top: -20px; margin-bottom: -20px;",
-          leafletOutput("map4") %>%
-            withSpinner(color = getOption("spinner.color", default = "#3C8EBC"))
-        )
-      ),
-      tabItem(
-        tabName = "tab_map5",
-        fluidRow(
-          style = "margin-top: -20px; margin-bottom: -20px;",
-          leafletOutput("map5") %>%
-            withSpinner(color = getOption("spinner.color", default = "#3C8EBC"))
-        )
-      ),
-      tabItem(
-        tabName = "tab_map6",
-        fluidRow(
-          style = "margin-top: -20px; margin-bottom: -20px;",
-          leafletOutput("map6") %>%
-            withSpinner(color = getOption("spinner.color", default = "#3C8EBC"))
-        )
-      ),
-      tabItem(
-        tabName = "tab_map7",
-        fluidRow(
-          style = "margin-top: -20px; margin-bottom: -20px;",
-          leafletOutput("map7") %>%
-            withSpinner(color = getOption("spinner.color", default = "#3C8EBC"))
-        )
-      ),
-      tabItem(
-        tabName = "info",
+        tabName = "readme",
         fluidRow(
           style = "margin-bottom: -15px; margin-left: -30px; margin-right: -30px;",
           column(
             width = 12,
             box(
               width = NULL,
-              title = h2(span(icon("info-circle"), "はじめに")),
+              title = h2(span(icon("info-circle"), "Readme")),
               solidHeader = TRUE,
-              p("2023年7月2日更新", align = "right"),
-              p("2023年3月31日公開", align = "right"),
               #------------------------------------------------------------------
-              h3(style = "border-bottom: solid 1px black;", span(icon("pen-square"), "本サイトの説明")),
-              p("Kondo (2023)において提案した人流データから推定する地域魅力度指数を可視化しています。"),
+              h3(style = "border-bottom: solid 1px black;", span(icon("fas fa-pen-square"), "Introduction")),
+              p("This web app visualizes the regional attractiveness index, estimated from mobility data. The concept is proposed in Kondo (2023)."),
               #------------------------------------------------------------------
-              h3(style = "border-bottom: solid 1px black;", span(icon("user-circle"), "作成者")),
-              p("近藤恵介"),
-              p("独立行政法人経済産業研究所・上席研究員"),
-              p("神戸大学経済経営研究所・准教授"),
-              h3(style = "border-bottom: solid 1px black;", span(icon("envelope-open"), "連絡先")),
+              h3(style = "border-bottom: solid 1px black;", span(icon("user-circle"), "Author")),
+              p(
+                "Keisuke Kondo", br(),
+                "Senior Fellow, Research Institute of Economy, Trade and Industry (RIETI)", br(),
+                "Associate Professor, Research Institute for Economics and Business Administration (RIEB), Kobe University"
+              ),
+              h3(style = "border-bottom: solid 1px black;", span(icon("envelope-open"), "Contact")),
               p("Email: kondo-keisuke@rieti.go.jp"),
-              h3(style = "border-bottom: solid 1px black;", span(icon("file-alt"), "利用規約")),
+              h3(style = "border-bottom: solid 1px black;", span(icon("fas fa-file-alt"), "Terms of Use")),
               p(
-                "当サイトで公開している情報（以下「コンテンツ」）は、どなたでも自由に利用できます。コンテンツ利用に当たっては、本利用規約に同意したものとみなします。本利用規約の内容は、必要に応じて事前の予告なしに変更されることがありますので、必ず最新の利用規約の内容をご確認ください。"
+                "Users (hereinafter referred to as the User or Users depending on context) of the content on this web site (hereinafter referred to as the Content) are required to conform to the terms of use described herein (hereinafter referred to as the Terms of Use). Furthermore, use of the Content constitutes agreement by the User with the Terms of Use. The content of the Terms of Use is subject to change without prior notice."
               ),
-              h4("著作権"),
-              p("本コンテンツの著作権は、近藤恵介に帰属します。"),
-              h4("第三者の権利"),
+              h4("Copyright"),
+              p("The copyright of the developed code belongs to Keisuke Kondo."),
+              h4("Copyright of Third Parties"),
               p(
-                "本コンテンツは、「近畿圏パーソントリップ調査」（京阪神都市圏交通計画協議会）および「国土数値情報」（国土交通省）の情報に基づいて作成しています。本コンテンツを利用する際は、第三者の権利を侵害しないようにしてください。"
+                "Keisuke Kondo developed the Content based on the information on the 2010 Person Trip Survey of Kinki Metropolitan Area and the From-To Analysis of the Regional Economy and Society Analyzing System (RESAS). The original data of From-To Analysis is based on Mobile Spatial Statistics® of NTT DOCOMO. The shapefiles were taken from the Digital National Land Information (MLIT of Japan) and the Portal Site of Official Statistics of Japan, e-Stat. Users must confirm the terms of use of the RESAS and the e-Stat, prior to using the Content."
               ),
-              h4("免責事項"),
-              p("(a) 作成にあたり細心の注意を払っていますが、本サイトの内容の完全性・正確性・有用性等についていかなる保証を行うものでありません。"),
-              p("(b) 本サイトを利用したことによるすべての障害・損害・不具合等、作成者および作成者の所属するいかなる団体・組織とも、一切の責任を負いません。"),
-              p("(c) 本サイトは、事前の予告なく変更、移転、削除等が行われることがあります。"),
+              h4("License"),
+              p("The developed code is released under the MIT License."),
+              h4("Disclaimer"),
+              p("(a) Keisuke Kondo makes the utmost effort to maintain, but nevertheless does not guarantee, the accuracy, completeness, integrity, usability, and recency of the Content."),
+              p("(b) Keisuke Kondo and any organization to which Keisuke Kondo belongs hereby disclaim responsibility and liability for any loss or damage that may be incurred by Users as a result of using the Content. Keisuke Kondo and any organization to which Keisuke Kondo belongs are neither responsible nor liable for any loss or damage that a User of the Content may cause to any third party as a result of using the Content"),
+              p("(c) The Content may be modified, moved or deleted without prior notice."),
               #------------------------------------------------------------------
-              h3(style = "border-bottom: solid 1px black;", span(icon("database"), "データ出所")),
-              h4("近畿圏パーソントリップ調査（京阪神都市圏交通計画協議会）"),
+              h3(style = "border-bottom: solid 1px black;", span(icon("database"), "Data Sources")),
+              h4("2010 Person Trip Survey of Kinki Metropolitan Area: Keihanshin Metropolitan Area Transportation Planning Council"),
               p(
                 "URL: ",
                 a(
@@ -171,7 +311,7 @@ dashboardPage(
                 ),
                 .noWS = c("after-begin", "before-end")
               ), 
-              h4("国土数値情報（国土数値情報）"),
+              h4("Digital National Land Information: MLIT of Japan"),
               p(
                 "URL: ",
                 a(
@@ -181,10 +321,30 @@ dashboardPage(
                 ),
                 .noWS = c("after-begin", "before-end")
               ),
-              #------------------------------------------------------------------
-              h3(style = "border-bottom: solid 1px black;", span(icon("book"), "参考文献")),
+              h4("From-To Analysis: RESAS API"),
               p(
-                "Kondo, Keisuke (2023) Measuring the Attractiveness of Trip Destinations: A Study of the Kansai Region, RIEB Discussion Paper Series No.2023-07"
+                "URL: ",
+                a(
+                  href = "https://opendata.resas-portal.go.jp/docs/api/v1/partner/docomo/destination.html",
+                  "https://opendata.resas-portal.go.jp/docs/api/v1/partner/docomo/destination.html",
+                  .noWS = "outside"
+                ),
+                .noWS = c("after-begin", "before-end")
+              ), 
+              h4("Shapefile of Japanese Prefectures: e-Stat, Portal Site of Official Statistics of Japan"),
+              p(
+                "URL: ",
+                a(
+                  href = "https://www.e-stat.go.jp/",
+                  "https://www.e-stat.go.jp/",
+                  .noWS = "outside"
+                ),
+                .noWS = c("after-begin", "before-end")
+              ),
+              #------------------------------------------------------------------
+              h3(style = "border-bottom: solid 1px black;", span(icon("book"), "Reference")),
+              p(
+                "Kondo, Keisuke (2023) Measuring the Attractiveness of Trip Destinations: A Study of the Kansai Region of Japan, RIEB Discussion Paper Series No.2023-07"
               ),
               p(
                 "URL: ",
@@ -194,7 +354,15 @@ dashboardPage(
                   .noWS = "outside"
                 ),
                 .noWS = c("after-begin", "before-end")
+              ),
+              #------------------------------------------------------------------
+              br(),
+              p(
+                "Updated Date: January 1, 2024", br(), 
+                "Updated Date: July 2, 2023", br(), 
+                "Release Date: March 31, 2023"
               )
+              #------------------------------------------------------------------
             )
           )
         )

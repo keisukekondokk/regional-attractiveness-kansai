@@ -1,390 +1,807 @@
 # 
 # (C) Keisuke Kondo
 # Release Date: 2023-03-31
+# Updated Date: 2024-01-01
 # 
 # - global.R
 # - ui.R
 # - server.R
 # 
 
-server <- function(input, output) {
-  ####################################
-  ## MAP VISUALIZATION
-  ## 
-  ####################################
-
+server <- function(input, output, session) {
+  ###################################################################
+  ## VISUALIZATION
+  ## - Tab1: Map (Person Trip Survey) by Leaflet
+  ## - Tab2: Map (Mobile Phone Data) by Leaflet
+  ## - Tab3: Time-Series (Mobile Phone Data) by Higherchart
+  ###################################################################
+  
   #++++++++++++++++++++++++++++++++++++++
-  #Map 1
+  #Tab1 Map
+  #++++++++++++++++++++++++++++++++++++++
+  
+  #Leaflet Output
   output$map1 <- renderLeaflet({
+    
+    #SF Object
+    sfPolyPtsLegend <- sfPolyPts %>%
+      dplyr::mutate(b_delta_color_group = cut(b_delta_total, breaks = breaks, labels = breaks_label)) %>%
+      dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
+      dplyr::left_join(df_pal, by = c("b_delta_color_group" = "color_label"))%>%
+      dplyr::rename(b_delta_color_value = color_value) %>%
+      dplyr::mutate(b_delta_color_value = if_else(is.na(b_delta_color_value), "#E5E5E5", b_delta_color_value)) 
+    
+    #Leaflet Object
+    leaflet() %>%
+      #Tile Layer from Mapbox
+      addMapboxGL(
+        accessToken = accessToken,
+        style = styleUrl,
+        setView = FALSE
+      ) %>%
+      addPolygons(
+        data = sfPolyPtsLegend,
+        fillColor = ~b_delta_color_value, 
+        fillOpacity = 0.5,
+        stroke = FALSE, 
+        popup = paste0(
+          "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
+          "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+          "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
+          "<b>Regional attractive index (total trips): </b>　", round(sfPolyPtsLegend$b_delta_total, 3), "<br>"
+        ),
+        label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+        group = "Regional Attractiveness Index"
+      ) %>%
+      addPolygons(
+        data = sfMuni, 
+        fill = FALSE, 
+        color = "#F0F0F0", 
+        weight = 1.0, 
+        group = "Municipality Division"
+      ) %>%
+      addPolygons(
+        data = sfPref, 
+        fill = FALSE, 
+        color = "#303030", 
+        weight = 3.0, 
+        group = "Prefecture Division"
+      ) %>%
+      addLegend(
+        colors = df_pal$color_value,
+        labels = df_pal$color_label,
+        title = paste("Regional Attractiveness Index", "(Total Trips)", sep = "<br>")
+      ) %>%
+      addLayersControl(
+        overlayGroups = c("Regional Attractiveness Index", "Municipality Division", "Prefecture Division"),
+        position = "topright",
+        options = layersControlOptions(collapsed = TRUE)
+      )
+  })
 
-    #TMAP
-    tp <-
-      sfPoly %>%
-      dplyr::mutate(b_delta_total = if_else(b_delta_total > 0, NA_real_, b_delta_total)) %>%
-      tm_shape() +
-      tm_basemap(NULL) +
-      tm_fill(
-        col = "b_delta_total",
-        alpha = 0.5,
-        palette = "-Oranges",
-        n = 9,
-        style = "fixed",
-        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
-        id = "muni_name",
-        popup.vars = c(
-          "都道府県コード" = "pref_code",
-          "都道府県名" = "pref_name",
-          "市町村コード" = "muni_code",
-          "市町村名" = "muni_name",
-          "ゾーンコード" = "id_odzone",
-          "地域魅力度指数" = "b_delta_total"
-        ),
-        popup.format = list(
-          muni_code = list(big.mark = ""),
-          id_odzone = list(big.mark = ""),
-          b_delta_total = list(digits = 4)
-        ),
-        title = paste("地域魅力度指数", "（全トリップ）", sep = "<br>"),
-        group = "地域魅力度指数マップ"
-      ) +
-      tm_borders(lwd = 0.25) +
-      tm_shape(sfMuni) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 1.5,
-                 group = "市区町村境界") +
-      tm_shape(sfPref) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 3.0,
-                 group = "都道府県境界") 
+  #LeafletProxy
+  map1_proxy <- leafletProxy("map1", session)
+
+  #Switch Leaflet
+  observeEvent(input$map1_button, {
+    #LEAFLET for Total Trips
+    if(input$map1_button == 1) {
+      #SF Object
+      sfPolyPtsLegend <- sfPolyPts %>%
+        dplyr::mutate(b_delta_color_group = cut(b_delta_total, breaks = breaks, labels = breaks_label)) %>%
+        dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
+        dplyr::left_join(df_pal, by = c("b_delta_color_group" = "color_label"))%>%
+        dplyr::rename(b_delta_color_value = color_value) %>%
+        dplyr::mutate(b_delta_color_value = if_else(is.na(b_delta_color_value), "#E5E5E5", b_delta_color_value)) 
       
-    #Leaflet from tmap
-    lf <- tmap_leaflet(tp, in.shiny = TRUE)
-    lf %>%
-      #Tile Layer from Mapbox
-      addMapboxGL(accessToken = accessToken,
-                  style = styleUrl,
-                  setView = FALSE)
-    
-  })
-  
-  #++++++++++++++++++++++++++++++++++++++
-  #Map 2
-  output$map2 <- renderLeaflet({
-    
-    #TMAP
-    tp <-
-      sfPoly %>%
-      dplyr::mutate(b_delta_office = if_else(b_delta_office > 0, NA_real_, b_delta_office)) %>%
-      tm_shape() +
-      tm_basemap(NULL) +
-      tm_fill(
-        col = "b_delta_office",
-        alpha = 0.5,
-        palette = "-Oranges",
-        n = 9,
-        style = "fixed",
-        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
-        id = "muni_name",
-        popup.vars = c(
-          "都道府県コード" = "pref_code",
-          "都道府県名" = "pref_name",
-          "市町村コード" = "muni_code",
-          "市町村名" = "muni_name",
-          "ゾーンコード" = "id_odzone",
-          "地域魅力度指数" = "b_delta_office"
-        ),
-        popup.format = list(
-          muni_code = list(big.mark = ""),
-          id_odzone = list(big.mark = ""),
-          b_delta_office = list(digits = 4)
-        ),
-        title = paste("地域魅力度指数", "（出勤トリップ）", sep = "<br>"),
-        group = "地域魅力度指数マップ"
-      ) +
-      tm_borders(lwd = 0.25) +
-      tm_shape(sfMuni) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 1.5,
-                 group = "市区町村境界") +
-      tm_shape(sfPref) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 3.0,
-                 group = "都道府県境界") 
-    
-    #Leaflet from tmap
-    lf <- tmap_leaflet(tp, in.shiny = TRUE)
-    lf %>%
-      #Tile Layer from Mapbox
-      addMapboxGL(accessToken = accessToken,
-                  style = styleUrl,
-                  setView = FALSE)
-    
-  })
+      #Leaflet Object
+      map1_proxy %>%
+        clearShapes() %>%
+        clearControls() %>%
+        addPolygons(
+          data = sfPolyPtsLegend,
+          fillColor = ~b_delta_color_value, 
+          fillOpacity = 0.5,
+          stroke = FALSE, 
+          popup = paste0(
+            "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
+            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
+            "<b>Regional attractive index (total trips): </b>　", round(sfPolyPtsLegend$b_delta_total, 3), "<br>"
+          ),
+          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          group = "Regional Attractiveness Index"
+        ) %>%
+        addPolygons(
+          data = sfMuni, 
+          fill = FALSE, 
+          color = "#F0F0F0", 
+          weight = 1.0, 
+          group = "Municipality Division"
+        ) %>%
+        addPolygons(
+          data = sfPref, 
+          fill = FALSE, 
+          color = "#303030", 
+          weight = 3.0, 
+          group = "Prefecture Division"
+        ) %>%
+        addLegend(
+          colors = df_pal$color_value,
+          labels = df_pal$color_label,
+          title = paste("Regional Attractiveness Index", "(Total Trips)", sep = "<br>")
+        ) %>%
+        addLayersControl(
+          overlayGroups = c("Regional Attractiveness Index", "Municipality Division", "Prefecture Division"),
+          position = "topright",
+          options = layersControlOptions(collapsed = TRUE)
+        )
+    }
+    #LEAFLET for Commuting to Offices
+    else if(input$map1_button == 2) {
+      #SF Object
+      sfPolyPtsLegend <- sfPolyPts %>%
+        dplyr::mutate(b_delta_color_group = cut(b_delta_office, breaks = breaks, labels = breaks_label)) %>%
+        dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
+        dplyr::left_join(df_pal, by = c("b_delta_color_group" = "color_label"))%>%
+        dplyr::rename(b_delta_color_value = color_value) %>%
+        dplyr::mutate(b_delta_color_value = if_else(is.na(b_delta_color_value), "#E5E5E5", b_delta_color_value)) 
 
-  #++++++++++++++++++++++++++++++++++++++
-  #Map 3
-  output$map3 <- renderLeaflet({
-    
-    #TMAP
-    tp <- 
-      sfPoly %>%
-      dplyr::mutate(b_delta_school = if_else(b_delta_school > 0, NA_real_, b_delta_school)) %>%
-      tm_shape() +
-      tm_basemap(NULL) +
-      tm_fill(
-        col = "b_delta_school",
-        alpha = 0.5,
-        palette = "-Oranges",
-        n = 9,
-        style = "fixed",
-        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
-        id = "muni_name",
-        popup.vars = c(
-          "都道府県コード" = "pref_code", 
-          "都道府県名" = "pref_name", 
-          "市町村コード" = "muni_code", 
-          "市町村名" = "muni_name", 
-          "ゾーンコード" = "id_odzone", 
-          "地域魅力度指数" = "b_delta_school"),
-        popup.format = list(
-          muni_code = list(big.mark = ""),
-          id_odzone = list(big.mark = ""),
-          b_delta_school = list(digits = 4)
-        ),
-        title = paste("地域魅力度指数", "（登校トリップ）", sep = "<br>"),
-        group = "地域魅力度指数マップ"
-      ) +
-      tm_borders(lwd = 0.25) +
-      tm_shape(sfMuni) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 1.5,
-                 group = "市区町村境界") +
-      tm_shape(sfPref) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 3.0,
-                 group = "都道府県境界") 
-    
-    #Leaflet from tmap
-    lf <- tmap_leaflet(tp, in.shiny = TRUE)
-    lf %>%
-      #Tile Layer from Mapbox
-      addMapboxGL(accessToken = accessToken,
-                  style = styleUrl,
-                  setView = FALSE)
-    
-  })
+      #Leaflet Object
+      map1_proxy %>%
+        clearShapes() %>%
+        clearControls() %>%
+        addPolygons(
+          data = sfPolyPtsLegend,
+          fillColor = ~b_delta_color_value, 
+          fillOpacity = 0.5,
+          stroke = FALSE, 
+          popup = paste0(
+            "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
+            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
+            "<b>Regional attractive index (commuting to office)：</b>　", round(sfPolyPtsLegend$b_delta_office, 3), "<br>"
+          ),
+          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          group = "Regional Attractiveness Index"
+        ) %>%
+        addPolygons(
+          data = sfMuni, 
+          fill = FALSE, 
+          color = "#F0F0F0", 
+          weight = 1.0, 
+          group = "Municipality Division"
+        ) %>%
+        addPolygons(
+          data = sfPref, 
+          fill = FALSE, 
+          color = "#303030", 
+          weight = 3.0, 
+          group = "Prefecture Division"
+        ) %>%
+        addLegend(
+          colors = df_pal$color_value,
+          labels = df_pal$color_label,
+          title = paste("Regional attractive index", "(commuting to office)", sep = "<br>")
+        ) %>%
+        addLayersControl(
+          overlayGroups = c("Regional Attractiveness Index", "Municipality Division", "Prefecture Division"),
+          position = "topright",
+          options = layersControlOptions(collapsed = TRUE)
+        )
+    }
+    #LEAFLET for Commuting to Schools
+    else if(input$map1_button == 3) {
+      #SF Object
+      sfPolyPtsLegend <- sfPolyPts %>%
+        dplyr::mutate(b_delta_color_group = cut(b_delta_school, breaks = breaks, labels = breaks_label)) %>%
+        dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
+        dplyr::left_join(df_pal, by = c("b_delta_color_group" = "color_label"))%>%
+        dplyr::rename(b_delta_color_value = color_value) %>%
+        dplyr::mutate(b_delta_color_value = if_else(is.na(b_delta_color_value), "#E5E5E5", b_delta_color_value)) 
+      
+      #Leaflet Object
+      map1_proxy %>%
+        clearShapes() %>%
+        clearControls() %>%
+        addPolygons(
+          data = sfPolyPtsLegend,
+          fillColor = ~b_delta_color_value, 
+          fillOpacity = 0.5,
+          stroke = FALSE, 
+          popup = paste0(
+            "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
+            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
+            "<b>Regional attractive index (commuting to school): </b>　", round(sfPolyPtsLegend$b_delta_school, 3), "<br>"
+          ),
+          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          group = "Regional Attractiveness Index"
+        ) %>%
+        addPolygons(
+          data = sfMuni, 
+          fill = FALSE, 
+          color = "#F0F0F0", 
+          weight = 1.0, 
+          group = "Municipality Division"
+        ) %>%
+        addPolygons(
+          data = sfPref, 
+          fill = FALSE, 
+          color = "#303030", 
+          weight = 3.0, 
+          group = "Prefecture Division"
+        ) %>%
+        addLegend(
+          colors = df_pal$color_value,
+          labels = df_pal$color_label,
+          title = paste("Regional attractive index", "(commuting to school)", sep = "<br>")
+        ) %>%
+        addLayersControl(
+          overlayGroups = c("Regional Attractiveness Index", "Municipality Division", "Prefecture Division"),
+          position = "topright",
+          options = layersControlOptions(collapsed = TRUE)
+        )
+    }
+    #LEAFLET
+    else if(input$map1_button == 4) {
+      #SF Object
+      sfPolyPtsLegend <- sfPolyPts %>%
+        dplyr::mutate(b_delta_color_group = cut(b_delta_free, breaks = breaks, labels = breaks_label)) %>%
+        dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
+        dplyr::left_join(df_pal, by = c("b_delta_color_group" = "color_label"))%>%
+        dplyr::rename(b_delta_color_value = color_value) %>%
+        dplyr::mutate(b_delta_color_value = if_else(is.na(b_delta_color_value), "#E5E5E5", b_delta_color_value)) 
+      
+      #Leaflet Object
+      map1_proxy %>%
+        clearShapes() %>%
+        clearControls() %>%
+        addPolygons(
+          data = sfPolyPtsLegend,
+          fillColor = ~b_delta_color_value, 
+          fillOpacity = 0.5,
+          stroke = FALSE, 
+          popup = paste0(
+            "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
+            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
+            "<b>Regional attractive index (free trips)：</b>　", round(sfPolyPtsLegend$b_delta_free, 3), "<br>"
+          ),
+          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          group = "Regional Attractiveness Index"
+        ) %>%
+        addPolygons(
+          data = sfMuni, 
+          fill = FALSE, 
+          color = "#F0F0F0", 
+          weight = 1.0, 
+          group = "Municipality Division"
+        ) %>%
+        addPolygons(
+          data = sfPref, 
+          fill = FALSE, 
+          color = "#303030", 
+          weight = 3.0, 
+          group = "Prefecture Division"
+        ) %>%
+        addLegend(
+          colors = df_pal$color_value,
+          labels = df_pal$color_label,
+          title = paste("Regional attractive index", "(free trips)", sep = "<br>")
+        ) %>%
+        addLayersControl(
+          overlayGroups = c("Regional Attractiveness Index", "Municipality Division", "Prefecture Division"),
+          position = "topright",
+          options = layersControlOptions(collapsed = TRUE)
+        )
+    }
+    #LEAFLET
+    else if(input$map1_button == 5) {
+      #SF Object
+      sfPolyPtsLegend <- sfPolyPts %>%
+        dplyr::mutate(b_delta_color_group = cut(b_delta_business, breaks = breaks, labels = breaks_label)) %>%
+        dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
+        dplyr::left_join(df_pal, by = c("b_delta_color_group" = "color_label"))%>%
+        dplyr::rename(b_delta_color_value = color_value) %>%
+        dplyr::mutate(b_delta_color_value = if_else(is.na(b_delta_color_value), "#E5E5E5", b_delta_color_value)) 
+      
+      #Leaflet Object
+      map1_proxy %>%
+        clearShapes() %>%
+        clearControls() %>%
+        addPolygons(
+          data = sfPolyPtsLegend,
+          fillColor = ~b_delta_color_value, 
+          fillOpacity = 0.5,
+          stroke = FALSE, 
+          popup = paste0(
+            "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
+            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
+            "<b>Regional attractive index (business trips)：</b>　", round(sfPolyPtsLegend$b_delta_business, 3), "<br>"
+          ),
+          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          group = "Regional Attractiveness Index"
+        ) %>%
+        addPolygons(
+          data = sfMuni, 
+          fill = FALSE, 
+          color = "#F0F0F0", 
+          weight = 1.0, 
+          group = "Municipality Division"
+        ) %>%
+        addPolygons(
+          data = sfPref, 
+          fill = FALSE, 
+          color = "#303030", 
+          weight = 3.0, 
+          group = "Prefecture Division"
+        ) %>%
+        addLegend(
+          colors = df_pal$color_value,
+          labels = df_pal$color_label,
+          title = paste("Regional attractive index", "(business trips)", sep = "<br>")
+        ) %>%
+        addLayersControl(
+          overlayGroups = c("Regional Attractiveness Index", "Municipality Division", "Prefecture Division"),
+          position = "topright",
+          options = layersControlOptions(collapsed = TRUE)
+        )
+    }
+    #LEAFLET
+    else if(input$map1_button == 6) {
+      #SF Object
+      sfPolyPtsLegend <- sfPolyPts %>%
+        dplyr::mutate(b_delta_color_group = cut(b_delta_home, breaks = breaks, labels = breaks_label)) %>%
+        dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
+        dplyr::left_join(df_pal, by = c("b_delta_color_group" = "color_label"))%>%
+        dplyr::rename(b_delta_color_value = color_value) %>%
+        dplyr::mutate(b_delta_color_value = if_else(is.na(b_delta_color_value), "#E5E5E5", b_delta_color_value)) 
+      
+      #Leaflet Object
+      map1_proxy %>%
+        clearShapes() %>%
+        clearControls() %>%
+        addPolygons(
+          data = sfPolyPtsLegend,
+          fillColor = ~b_delta_color_value, 
+          fillOpacity = 0.5,
+          stroke = FALSE, 
+          popup = paste0(
+            "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
+            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
+            "<b>Regional attractive index (returning to home)：</b>　", round(sfPolyPtsLegend$b_delta_home, 3), "<br>"
+          ),
+          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          group = "Regional Attractiveness Index"
+        ) %>%
+        addPolygons(
+          data = sfMuni, 
+          fill = FALSE, 
+          color = "#F0F0F0", 
+          weight = 1.0, 
+          group = "Municipality Division"
+        ) %>%
+        addPolygons(
+          data = sfPref, 
+          fill = FALSE, 
+          color = "#303030", 
+          weight = 3.0, 
+          group = "Prefecture Division"
+        ) %>%
+        addLegend(
+          colors = df_pal$color_value,
+          labels = df_pal$color_label,
+          title = paste("Regional attractive index", "(returning to home)", sep = "<br>")
+        ) %>%
+        addLayersControl(
+          overlayGroups = c("Regional Attractiveness Index", "Municipality Division", "Prefecture Division"),
+          position = "topright",
+          options = layersControlOptions(collapsed = TRUE)
+        )
+    }
+    #LEAFLET
+    else if(input$map1_button == 7) {
+      #SF Object
+      sfPolyPtsLegend <- sfPolyPts %>%
+        dplyr::mutate(b_delta_color_group = cut(b_delta_unknown, breaks = breaks, labels = breaks_label)) %>%
+        dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
+        dplyr::left_join(df_pal, by = c("b_delta_color_group" = "color_label"))%>%
+        dplyr::rename(b_delta_color_value = color_value) %>%
+        dplyr::mutate(b_delta_color_value = if_else(is.na(b_delta_color_value), "#E5E5E5", b_delta_color_value)) 
+      
+      #Leaflet Object
+      map1_proxy %>%
+        clearShapes() %>%
+        clearControls() %>%
+        addPolygons(
+          data = sfPolyPtsLegend,
+          fillColor = ~b_delta_color_value, 
+          fillOpacity = 0.5,
+          stroke = FALSE, 
+          popup = paste0(
+            "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
+            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
+            "<b>Regional attractive index (unknown trips)：</b>　", round(sfPolyPtsLegend$b_delta_unknown, 3), "<br>"
+          ),
+          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          group = "Regional Attractiveness Index"
+        ) %>%
+        addPolygons(
+          data = sfMuni, 
+          fill = FALSE, 
+          color = "#F0F0F0", 
+          weight = 1.0, 
+          group = "Municipality Division"
+        ) %>%
+        addPolygons(
+          data = sfPref, 
+          fill = FALSE, 
+          color = "#303030", 
+          weight = 3.0, 
+          group = "Prefecture Division"
+        ) %>%
+        addLegend(
+          colors = df_pal$color_value,
+          labels = df_pal$color_label,
+          title = paste("Regional attractive index", " (unknown trips)", sep = "<br>")
+        ) %>%
+        addLayersControl(
+          overlayGroups = c("Regional Attractiveness Index", "Municipality Division", "Prefecture Division"),
+          position = "topright",
+          options = layersControlOptions(collapsed = TRUE)
+        )
+    } 
+  }, ignoreInit = TRUE)
   
   #++++++++++++++++++++++++++++++++++++++
-  #Map 4
-  output$map4 <- renderLeaflet({
-    
-    #TMAP
-    tp <- 
-      sfPoly %>%
-      dplyr::mutate(b_delta_free = if_else(b_delta_free > 0, NA_real_, b_delta_free)) %>%
-      tm_shape() +
-      tm_basemap(NULL) +
-      tm_fill(
-        col = "b_delta_free",
-        alpha = 0.5,
-        palette = "-Oranges",
-        n = 9,
-        style = "fixed",
-        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
-        id = "muni_name",
-        popup.vars = c(
-          "都道府県コード" = "pref_code", 
-          "都道府県名" = "pref_name", 
-          "市町村コード" = "muni_code", 
-          "市町村名" = "muni_name", 
-          "ゾーンコード" = "id_odzone", 
-          "地域魅力度指数" = "b_delta_free"),
-        popup.format = list(
-          muni_code = list(big.mark = ""),
-          id_odzone = list(big.mark = ""),
-          b_delta_free = list(digits = 4)
-        ),
-        title = paste("地域魅力度指数", "（自由トリップ）", sep = "<br>"),
-        group = "地域魅力度指数マップ"
-      ) +
-      tm_borders(lwd = 0.25) +
-      tm_shape(sfMuni) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 1.5,
-                 group = "市区町村境界") +
-      tm_shape(sfPref) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 3.0,
-                 group = "都道府県境界") 
-    
-    #Leaflet from tmap
-    lf <- tmap_leaflet(tp, in.shiny = TRUE)
-    lf %>%
-      #Tile Layer from Mapbox
-      addMapboxGL(accessToken = accessToken,
-                  style = styleUrl,
-                  setView = FALSE)
+  #Tab2 Map
+  #++++++++++++++++++++++++++++++++++++++
 
-  })
+  #Leaflet Output
+  observeEvent(input$buttonMapUpdate, {
+    
+    #Popup
+    popup_yearmonth = as.character(format(input$listMapDate, format = "%Y-%m"))
+    
+    #Popup
+    if( input$listMapDay == 1 ){
+      popup_day = "Weekday"
+    } 
+    else if ( input$listMapDay == 2 ){
+      popup_day = "Weekend/Holiday"
+    }
+    
+    #Popup
+    if( input$listMapGender == 0 ){
+      popup_gender = "Total"
+    } 
+    else if ( input$listMapGender == 1 ){
+      popup_gender = "Male"
+    }
+    else if ( input$listMapGender == 2 ){
+      popup_gender = "Female"
+    }
+    
+    #Popup
+    if( input$listMapAge == 0 ){
+      popup_age = "Total"
+    } 
+    else if ( input$listMapAge == 1 ){
+      popup_age = "15-39"
+    }
+    else if ( input$listMapAge == 2 ){
+      popup_age = "40-59"
+    }
+    else if ( input$listMapAge == 3 ){
+      popup_age = "60 and above"
+    }
+    
+    #DataFrame Filtered 
+    dfDeltaMssMap <- dfDeltaMss %>%
+      dplyr::filter(
+        year == lubridate::year(input$listMapDate) &
+          month == lubridate::month(input$listMapDate) &
+          day == input$listMapDay &
+          gender == input$listMapGender & 
+          age_group == input$listMapAge
+      )
+    
+    #Shapefiles
+    sfPolyMssLegend <- sfMuni %>%
+      dplyr::left_join(dfDeltaMssMap, by = c( "muni_code" = "code_pref_muni" )) %>%
+      dplyr::select(pref_code, pref_name, muni_code, muni_name, starts_with("b_delta")) %>%
+      dplyr::mutate(b_delta_total = if_else(b_delta_total > 0, NA_real_, b_delta_total)) %>%
+      dplyr::mutate(b_delta_color_group = cut(b_delta_total, breaks = breaks, labels = breaks_label)) %>%
+      dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
+      dplyr::left_join(df_pal, by = c("b_delta_color_group" = "color_label"))%>%
+      dplyr::rename(b_delta_color_value = color_value) %>%
+      dplyr::mutate(b_delta_color_value = if_else(is.na(b_delta_color_value), "#E5E5E5", b_delta_color_value)) 
+    
+    #Leaflet Object
+    output$map2 <- renderLeaflet({
+      leaflet() %>%
+        #Tile Layer from Mapbox
+        addMapboxGL(
+          accessToken = accessToken,
+          style = styleUrl,
+          setView = FALSE
+        ) %>%
+        addPolygons(
+          data = sfPolyMssLegend,
+          fillColor = ~b_delta_color_value, 
+          fillOpacity = 0.5,
+          stroke = FALSE, 
+          popup = paste0(
+            "<b>Date: </b>　", popup_yearmonth, "<br>",
+            "<b>Day: </b>　", popup_day, "<br>",
+            "<b>Gender: </b>　", popup_gender, "<br>",
+            "<b>Age Group: </b>　", popup_age, "<br>",
+            "<b>Municipality code: </b>　", sfPolyMssLegend$muni_code, "<br>",
+            "<b>Municipality name: </b>　", sfPolyMssLegend$pref_name, sfPolyMssLegend$muni_name, "<br>",
+            "<b>Regional attractive index: </b>　", round(sfPolyMssLegend$b_delta_total, 3), "<br>"
+          ),
+          label = paste0(sfPolyMssLegend$pref_name, sfPolyMssLegend$muni_name),
+          group = "Regional Attractiveness Index"
+        ) %>%
+        addPolygons(
+          data = sfMuni, 
+          fill = FALSE, 
+          color = "#F0F0F0", 
+          weight = 1.0, 
+          group = "Municipality Division"
+        ) %>%
+        addPolygons(
+          data = sfPref, 
+          fill = FALSE, 
+          color = "#303030", 
+          weight = 3.0, 
+          group = "Prefecture Division"
+        ) %>%
+        addLegend(
+          colors = df_pal$color_value,
+          labels = df_pal$color_label,
+          title = "Regional Attractiveness Index"
+        ) %>%
+        addLayersControl(
+          overlayGroups = c("Regional Attractiveness Index", "Municipality Division", "Prefecture Division"),
+          position = "topright",
+          options = layersControlOptions(collapsed = TRUE)
+        )      
+    })
+  }, ignoreInit = FALSE, ignoreNULL = FALSE, once = TRUE)
+  
+  #LeafletProxy
+  map2_proxy <- leafletProxy("map2", session)
+  
+  #Switch Leaflet
+  observeEvent(input$buttonMapUpdate, {
+    
+    #Popup
+    popup_yearmonth = as.character(format(input$listMapDate, format = "%Y-%m"))
+    
+    #Popup
+    if( input$listMapDay == 1 ){
+      popup_day = "Weekday"
+    } 
+    else if ( input$listMapDay == 2 ){
+      popup_day = "Weekend/Holiday"
+    }
+    
+    #Popup
+    if( input$listMapGender == 0 ){
+      popup_gender = "Total"
+    } 
+    else if ( input$listMapGender == 1 ){
+      popup_gender = "Male"
+    }
+    else if ( input$listMapGender == 2 ){
+      popup_gender = "Female"
+    }
+    
+    #Popup
+    if( input$listMapAge == 0 ){
+      popup_age = "Total"
+    } 
+    else if ( input$listMapAge == 1 ){
+      popup_age = "15-39"
+    }
+    else if ( input$listMapAge == 2 ){
+      popup_age = "40-59"
+    }
+    else if ( input$listMapAge == 3 ){
+      popup_age = "60 and above"
+    }
+
+    #DataFrame Filtered 
+    dfDeltaMssMap <- dfDeltaMss %>%
+      dplyr::filter(
+        year == lubridate::year(input$listMapDate) &
+          month == lubridate::month(input$listMapDate) &
+          day == input$listMapDay &
+          gender == input$listMapGender & 
+          age_group == input$listMapAge
+      )
+
+    #Shapefiles
+    sfPolyMssLegend <- sfMuni %>%
+      dplyr::left_join(dfDeltaMssMap, by = c( "muni_code" = "code_pref_muni" )) %>%
+      dplyr::select(pref_code, pref_name, muni_code, muni_name, starts_with("b_delta")) %>%
+      dplyr::mutate(b_delta_total = if_else(b_delta_total > 0, NA_real_, b_delta_total)) %>%
+      dplyr::mutate(b_delta_color_group = cut(b_delta_total, breaks = breaks, labels = breaks_label)) %>%
+      dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
+      dplyr::left_join(df_pal, by = c("b_delta_color_group" = "color_label"))%>%
+      dplyr::rename(b_delta_color_value = color_value) %>%
+      dplyr::mutate(b_delta_color_value = if_else(is.na(b_delta_color_value), "#E5E5E5", b_delta_color_value)) 
+    
+    #Leaflet Object
+    map2_proxy %>%
+      clearShapes() %>%
+      clearControls() %>%
+      addPolygons(
+        data = sfPolyMssLegend,
+        fillColor = ~b_delta_color_value, 
+        fillOpacity = 0.5,
+        stroke = FALSE, 
+        popup = paste0(
+          "<b>Date: </b>　", popup_yearmonth, "<br>",
+          "<b>Day: </b>　", popup_day, "<br>",
+          "<b>Gender: </b>　", popup_gender, "<br>",
+          "<b>Age Group: </b>　", popup_age, "<br>",
+          "<b>Municipality code: </b>　", sfPolyMssLegend$muni_code, "<br>",
+          "<b>Municipality name: </b>　", sfPolyMssLegend$pref_name, sfPolyMssLegend$muni_name, "<br>",
+          "<b>Regional attractive index: </b>　", round(sfPolyMssLegend$b_delta_total, 3), "<br>"
+        ),
+        label = paste0(sfPolyMssLegend$pref_name, sfPolyMssLegend$muni_name),
+        group = "Regional Attractiveness Index"
+      ) %>%
+      addPolygons(
+        data = sfMuni, 
+        fill = FALSE, 
+        color = "#F0F0F0", 
+        weight = 1.0, 
+        group = "Municipality Division"
+      ) %>%
+      addPolygons(
+        data = sfPref, 
+        fill = FALSE, 
+        color = "#303030", 
+        weight = 3.0, 
+        group = "Prefecture Division"
+      ) %>%
+      addLegend(
+        colors = df_pal$color_value,
+        labels = df_pal$color_label,
+        title = "Regional Attractiveness Index"
+      ) %>%
+      addLayersControl(
+        overlayGroups = c("Regional Attractiveness Index", "Municipality Division", "Prefecture Division"),
+        position = "topright",
+        options = layersControlOptions(collapsed = TRUE)
+      )
+  }, ignoreInit = TRUE, ignoreNULL = FALSE)
   
   #++++++++++++++++++++++++++++++++++++++
-  #Map 5
-  output$map5 <- renderLeaflet({
-    
-    #TMAP
-    tp <- 
-      sfPoly %>%
-      dplyr::mutate(b_delta_business = if_else(b_delta_business > 0, NA_real_, b_delta_business)) %>%
-      tm_shape() +
-      tm_basemap(NULL) +
-      tm_fill(
-        col = "b_delta_business",
-        alpha = 0.5,
-        palette = "-Oranges",
-        n = 9,
-        style = "fixed",
-        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
-        id = "muni_name",
-        popup.vars = c(
-          "都道府県コード" = "pref_code", 
-          "都道府県名" = "pref_name", 
-          "市町村コード" = "muni_code", 
-          "市町村名" = "muni_name", 
-          "ゾーンコード" = "id_odzone", 
-          "地域魅力度指数" = "b_delta_business"),
-        popup.format = list(
-          muni_code = list(big.mark = ""),
-          id_odzone = list(big.mark = ""),
-          b_delta_business = list(digits = 4)
-        ),
-        title = paste("地域魅力度指数", "（業務トリップ）", sep = "<br>"),
-        group = "地域魅力度指数マップ"
-      ) +
-      tm_borders(lwd = 0.25) +
-      tm_shape(sfMuni) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 1.5,
-                 group = "市区町村境界") +
-      tm_shape(sfPref) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 3.0,
-                 group = "都道府県境界") 
-    
-    #Leaflet from tmap
-    lf <- tmap_leaflet(tp, in.shiny = TRUE)
-    lf %>%
-      #Tile Layer from Mapbox
-      addMapboxGL(accessToken = accessToken,
-                  style = styleUrl,
-                  setView = FALSE)
-    
-  })
-  
+  #Tab3 Time-series
   #++++++++++++++++++++++++++++++++++++++
-  #Map 6
-  output$map6 <- renderLeaflet({
+  observeEvent(input$buttonLineUpdate, {
     
-    #TMAP
-    tp <- 
-      sfPoly %>%
-      dplyr::mutate(b_delta_home = if_else(b_delta_home > 0, NA_real_, b_delta_home)) %>%
-      tm_shape() +
-      tm_basemap(NULL) +
-      tm_fill(
-        col = "b_delta_home",
-        alpha = 0.5,
-        palette = "-Oranges",
-        n = 9,
-        style = "fixed",
-        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
-        id = "muni_name",
-        popup.vars = c(
-          "都道府県コード" = "pref_code", 
-          "都道府県名" = "pref_name", 
-          "市町村コード" = "muni_code", 
-          "市町村名" = "muni_name", 
-          "ゾーンコード" = "id_odzone", 
-          "地域魅力度指数" = "b_delta_home"),
-        popup.format = list(
-          muni_code = list(big.mark = ""),
-          id_odzone = list(big.mark = ""),
-          b_delta_home = list(digits = 4)
-        ),
-        title = paste("地域魅力度指数", "（帰宅トリップ）", sep = "<br>"),
-        group = "地域魅力度指数マップ"
-      ) +
-      tm_borders(lwd = 0.25) +
-      tm_shape(sfMuni) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 1.5,
-                 group = "市区町村境界") +
-      tm_shape(sfPref) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 3.0,
-                 group = "都道府県境界") 
+    #Municipality Code
+    inputListLineMuni1 <- as.numeric(strsplit(input$listLineMuni1, " ")[[1]][1])
+    inputListLineMuni2 <- as.numeric(strsplit(input$listLineMuni2, " ")[[1]][1])
     
-    #Leaflet from tmap
-    lf <- tmap_leaflet(tp, in.shiny = TRUE)
-    lf %>%
-      #Tile Layer from Mapbox
-      addMapboxGL(accessToken = accessToken,
-                  style = styleUrl,
-                  setView = FALSE)
+    #DataFrame Base Day1
+    dfDeltaLineDay1Base <- dfDeltaMss %>%
+      dplyr::filter(
+        code_pref_muni == inputListLineMuni1 &
+          day == 1 &
+          gender == input$listLineGender & 
+          age_group == input$listLineAge
+      ) %>%
+      dplyr::left_join(dfMuni, by = c("code_pref_muni" = "muni_code")) %>%
+      dplyr::mutate(time = paste0(year, "-", stringr::str_pad(month, 2, pad = "0"), "-01")) %>%
+      dplyr::mutate(ts = as.Date(time, format = "%Y-%m-%d", tz = "Asia/Tokyo"))
     
-  })
+    #DataFrame Base Day2
+    dfDeltaLineDay2Base <- dfDeltaMss %>%
+      dplyr::filter(
+        code_pref_muni == inputListLineMuni1 &
+          day == 2 &
+          gender == input$listLineGender & 
+          age_group == input$listLineAge
+      ) %>%
+      dplyr::left_join(dfMuni, by = c("code_pref_muni" = "muni_code")) %>%
+      dplyr::mutate(time = paste0(year, "-", stringr::str_pad(month, 2, pad = "0"), "-01")) %>%
+      dplyr::mutate(ts = as.Date(time, format = "%Y-%m-%d"))
+    
+    #DataFrame Comparison Day1
+    dfDeltaLineDay1Comp <- dfDeltaMss %>%
+      dplyr::filter(
+        code_pref_muni == inputListLineMuni2 &
+          day == 1 &
+          gender == input$listLineGender & 
+          age_group == input$listLineAge
+      ) %>%
+      dplyr::left_join(dfMuni, by = c("code_pref_muni" = "muni_code")) %>%
+      dplyr::mutate(time = paste0(year, "-", stringr::str_pad(month, 2, pad = "0"), "-01")) %>%
+      dplyr::mutate(ts = as.Date(time, format = "%Y-%m-%d", tz = "Asia/Tokyo"))
+    
+    #DataFrame Comparison Day2
+    dfDeltaLineDay2Comp <- dfDeltaMss %>%
+      dplyr::filter(
+        code_pref_muni == inputListLineMuni2 &
+          day == 2 &
+          gender == input$listLineGender & 
+          age_group == input$listLineAge
+      ) %>%
+      dplyr::left_join(dfMuni, by = c("code_pref_muni" = "muni_code")) %>%
+      dplyr::mutate(time = paste0(year, "-", stringr::str_pad(month, 2, pad = "0"), "-01")) %>%
+      dplyr::mutate(ts = as.Date(time, format = "%Y-%m-%d"))
+    
+    #Highcharts: Value
+    output$line1 <- renderHighchart({
+      
+      hc1 <- highchart() %>%
+        hc_add_series(
+          data = dfDeltaLineDay1Base,
+          hcaes(x = ts, y = b_delta_total),
+          type = "line",
+          color = "#2F7ED8",
+          lineWidth = 2,
+          name = paste0(dfDeltaLineDay1Base$muni_name[1], " (Weekday)"),
+          showInLegend = TRUE
+        ) %>%
+        hc_add_series(
+          data = dfDeltaLineDay2Base,
+          hcaes(x = ts, y = b_delta_total),
+          type = "line",
+          color = "#CD5C5C",
+          lineWidth = 2,
+          name = paste0(dfDeltaLineDay2Base$muni_name[1], " (Weekend/Holiday)"),
+          showInLegend = TRUE
+        ) %>%
+        hc_add_series(
+          data = dfDeltaLineDay1Comp,
+          hcaes(x = ts, y = b_delta_total),
+          type = "line",
+          color = "#2F7ED8",
+          lineWidth = 2,
+          name = paste0(dfDeltaLineDay1Comp$muni_name[1], " (Weekday)"),
+          showInLegend = TRUE,
+          dashStyle = "longdash"
+        ) %>%
+        hc_add_series(
+          data = dfDeltaLineDay2Comp,
+          hcaes(x = ts, y = b_delta_total),
+          type = "line",
+          color = "#CD5C5C",
+          lineWidth = 2,
+          name = paste0(dfDeltaLineDay2Comp$muni_name[1], " (Weekend/Holiday)"),
+          showInLegend = TRUE,
+          dashStyle = "longdash"
+        ) %>%
+        hc_yAxis(
+          title = list(text = "Regional Attractiveness Index"),
+          allowDecimals = TRUE
+        ) %>%
+        hc_xAxis(
+          type = "datetime", 
+          showLastLabel = TRUE,
+          dateTimeLabelFormats = list(day = "%d", month = "%b-%Y")
+        ) %>%
+        hc_tooltip(valueDecimals = 4,
+                   pointFormat = "Municipality: {point.series.name} <br> Delta: {point.y}") %>%
+        hc_add_theme(hc_theme_flat()) %>%
+        hc_credits(enabled = TRUE)
+      
+      #plot
+      hc1
+      
+    })
+    
+  }, ignoreInit = FALSE, ignoreNULL = FALSE)
   
-  #++++++++++++++++++++++++++++++++++++++
-  #Map 7
-  output$map7 <- renderLeaflet({
-    
-    #TMAP
-    tp <- 
-      sfPoly %>%
-      dplyr::mutate(b_delta_unknown = if_else(b_delta_unknown > 0, NA_real_, b_delta_unknown)) %>%
-      tm_shape() +
-      tm_basemap(NULL) +
-      tm_fill(
-        col = "b_delta_unknown",
-        alpha = 0.5,
-        palette = "-Oranges",
-        n = 9,
-        style = "fixed",
-        breaks = c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0),
-        id = "muni_name",
-        popup.vars = c(
-          "都道府県コード" = "pref_code", 
-          "都道府県名" = "pref_name", 
-          "市町村コード" = "muni_code", 
-          "市町村名" = "muni_name", 
-          "ゾーンコード" = "id_odzone", 
-          "地域魅力度指数" = "b_delta_unknown"),
-        popup.format = list(
-          muni_code = list(big.mark = ""),
-          id_odzone = list(big.mark = ""),
-          b_delta_unknown = list(digits = 4)
-        ),
-        title = paste("地域魅力度指数", "（不明トリップ）", sep = "<br>"),
-        group = "地域魅力度指数マップ"
-      ) +
-      tm_borders(
-        lwd = 0.25
-      ) +
-      tm_shape(sfMuni) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 1.5,
-                 group = "市区町村境界") +
-      tm_shape(sfPref) +
-      tm_basemap(NULL) +
-      tm_borders(lwd = 3.0,
-                 group = "都道府県境界") 
-    
-    #Leaflet from tmap
-    lf <- tmap_leaflet(tp, in.shiny = TRUE)
-    lf %>%
-      #Tile Layer from Mapbox
-      addMapboxGL(accessToken = accessToken,
-                  style = styleUrl,
-                  setView = FALSE)
-    
-  })
 }

@@ -46,11 +46,13 @@ server <- function(input, output, session) {
         stroke = FALSE, 
         popup = paste0(
           "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
-          "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+          "<b>Municipality name (en): </b>　", sfPolyPtsLegend$muni_name_en, ", ", sfPolyPtsLegend$pref_name_en, "<br>",
+          "<b>Municipality name (jp): </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
           "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
           "<b>Regional attractive index (total trips): </b>　", round(sfPolyPtsLegend$b_delta_total, 3), "<br>"
         ),
-        label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+        popupOptions = list(maxWidth = 500, closeOnClick = TRUE),
+        label = paste(sfPolyPtsLegend$muni_name_en, sfPolyPtsLegend$pref_name_en, sep = ", "),
         group = "Regional Attractiveness Index"
       ) %>%
       addPolygons(
@@ -105,11 +107,13 @@ server <- function(input, output, session) {
           stroke = FALSE, 
           popup = paste0(
             "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
-            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>Municipality name (en): </b>　", sfPolyPtsLegend$muni_name_en, ", ", sfPolyPtsLegend$pref_name_en, "<br>",
+            "<b>Municipality name (jp): </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
             "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
             "<b>Regional attractive index (total trips): </b>　", round(sfPolyPtsLegend$b_delta_total, 3), "<br>"
           ),
-          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          popupOptions = list(maxWidth = 500, closeOnClick = TRUE),
+          label = paste(sfPolyPtsLegend$muni_name_en, sfPolyPtsLegend$pref_name_en, sep = ", "),
           group = "Regional Attractiveness Index"
         ) %>%
         addPolygons(
@@ -158,11 +162,13 @@ server <- function(input, output, session) {
           stroke = FALSE, 
           popup = paste0(
             "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
-            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>Municipality name (en): </b>　", sfPolyPtsLegend$muni_name_en, ", ", sfPolyPtsLegend$pref_name_en, "<br>",
+            "<b>Municipality name (jp): </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
             "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
             "<b>Regional attractive index (commuting to office)：</b>　", round(sfPolyPtsLegend$b_delta_office, 3), "<br>"
           ),
-          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          popupOptions = list(maxWidth = 500, closeOnClick = TRUE),
+          label = paste(sfPolyPtsLegend$muni_name_en, sfPolyPtsLegend$pref_name_en, sep = ", "),
           group = "Regional Attractiveness Index"
         ) %>%
         addPolygons(
@@ -211,11 +217,13 @@ server <- function(input, output, session) {
           stroke = FALSE, 
           popup = paste0(
             "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
-            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>Municipality name (en): </b>　", sfPolyPtsLegend$muni_name_en, ", ", sfPolyPtsLegend$pref_name_en, "<br>",
+            "<b>Municipality name (jp): </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
             "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
             "<b>Regional attractive index (commuting to school): </b>　", round(sfPolyPtsLegend$b_delta_school, 3), "<br>"
           ),
-          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          popupOptions = list(maxWidth = 500, closeOnClick = TRUE),
+          label = paste(sfPolyPtsLegend$muni_name_en, sfPolyPtsLegend$pref_name_en, sep = ", "),
           group = "Regional Attractiveness Index"
         ) %>%
         addPolygons(
@@ -264,11 +272,13 @@ server <- function(input, output, session) {
           stroke = FALSE, 
           popup = paste0(
             "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
-            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>Municipality name (en): </b>　", sfPolyPtsLegend$muni_name_en, ", ", sfPolyPtsLegend$pref_name_en, "<br>",
+            "<b>Municipality name (jp): </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
             "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
             "<b>Regional attractive index (free trips)：</b>　", round(sfPolyPtsLegend$b_delta_free, 3), "<br>"
           ),
-          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          popupOptions = list(maxWidth = 500, closeOnClick = TRUE),
+          label = paste(sfPolyPtsLegend$muni_name_en, sfPolyPtsLegend$pref_name_en, sep = ", "),
           group = "Regional Attractiveness Index"
         ) %>%
         addPolygons(
@@ -317,11 +327,13 @@ server <- function(input, output, session) {
           stroke = FALSE, 
           popup = paste0(
             "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
-            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>Municipality name (en): </b>　", sfPolyPtsLegend$muni_name_en, ", ", sfPolyPtsLegend$pref_name_en, "<br>",
+            "<b>Municipality name (jp): </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
             "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
             "<b>Regional attractive index (business trips)：</b>　", round(sfPolyPtsLegend$b_delta_business, 3), "<br>"
           ),
-          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          popupOptions = list(maxWidth = 500, closeOnClick = TRUE),
+          label = paste(sfPolyPtsLegend$muni_name_en, sfPolyPtsLegend$pref_name_en, sep = ", "),
           group = "Regional Attractiveness Index"
         ) %>%
         addPolygons(
@@ -370,11 +382,13 @@ server <- function(input, output, session) {
           stroke = FALSE, 
           popup = paste0(
             "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
-            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>Municipality name (en): </b>　", sfPolyPtsLegend$muni_name_en, ", ", sfPolyPtsLegend$pref_name_en, "<br>",
+            "<b>Municipality name (jp): </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
             "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
             "<b>Regional attractive index (returning to home)：</b>　", round(sfPolyPtsLegend$b_delta_home, 3), "<br>"
           ),
-          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          popupOptions = list(maxWidth = 500, closeOnClick = TRUE),
+          label = paste(sfPolyPtsLegend$muni_name_en, sfPolyPtsLegend$pref_name_en, sep = ", "),
           group = "Regional Attractiveness Index"
         ) %>%
         addPolygons(
@@ -423,11 +437,13 @@ server <- function(input, output, session) {
           stroke = FALSE, 
           popup = paste0(
             "<b>Municipality code: </b>　", sfPolyPtsLegend$muni_code, "<br>",
-            "<b>Municipality name: </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
+            "<b>Municipality name (en): </b>　", sfPolyPtsLegend$muni_name_en, ", ", sfPolyPtsLegend$pref_name_en, "<br>",
+            "<b>Municipality name (jp): </b>　", sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name, "<br>",
             "<b>OD zone code: </b>　", sfPolyPtsLegend$id_odzone, "<br>",
             "<b>Regional attractive index (unknown trips)：</b>　", round(sfPolyPtsLegend$b_delta_unknown, 3), "<br>"
           ),
-          label = paste0(sfPolyPtsLegend$pref_name, sfPolyPtsLegend$muni_name),
+          popupOptions = list(maxWidth = 500, closeOnClick = TRUE),
+          label = paste(sfPolyPtsLegend$muni_name_en, sfPolyPtsLegend$pref_name_en, sep = ", "),
           group = "Regional Attractiveness Index"
         ) %>%
         addPolygons(
@@ -513,7 +529,7 @@ server <- function(input, output, session) {
     #Shapefiles
     sfPolyMssLegend <- sfMuni %>%
       dplyr::left_join(dfDeltaMssMap, by = c( "muni_code" = "code_pref_muni" )) %>%
-      dplyr::select(pref_code, pref_name, muni_code, muni_name, starts_with("b_delta")) %>%
+      dplyr::select(pref_code, pref_name, pref_name_en, muni_code, muni_name, muni_name_en, starts_with("b_delta")) %>%
       dplyr::mutate(b_delta_total = if_else(b_delta_total > 0, NA_real_, b_delta_total)) %>%
       dplyr::mutate(b_delta_color_group = cut(b_delta_total, breaks = breaks, labels = breaks_label)) %>%
       dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
@@ -541,10 +557,12 @@ server <- function(input, output, session) {
             "<b>Gender: </b>　", popup_gender, "<br>",
             "<b>Age Group: </b>　", popup_age, "<br>",
             "<b>Municipality code: </b>　", sfPolyMssLegend$muni_code, "<br>",
-            "<b>Municipality name: </b>　", sfPolyMssLegend$pref_name, sfPolyMssLegend$muni_name, "<br>",
+            "<b>Municipality name (en): </b>　", sfPolyMssLegend$muni_name_en, ", ", sfPolyMssLegend$pref_name_en, "<br>",
+            "<b>Municipality name (jp): </b>　", sfPolyMssLegend$pref_name, sfPolyMssLegend$muni_name, "<br>",
             "<b>Regional attractive index: </b>　", round(sfPolyMssLegend$b_delta_total, 3), "<br>"
           ),
-          label = paste0(sfPolyMssLegend$pref_name, sfPolyMssLegend$muni_name),
+          popupOptions = list(maxWidth = 500, closeOnClick = TRUE),
+          label = paste0(sfPolyMssLegend$muni_name_en, ", ", sfPolyMssLegend$pref_name_en),
           group = "Regional Attractiveness Index"
         ) %>%
         addPolygons(
@@ -629,7 +647,7 @@ server <- function(input, output, session) {
     #Shapefiles
     sfPolyMssLegend <- sfMuni %>%
       dplyr::left_join(dfDeltaMssMap, by = c( "muni_code" = "code_pref_muni" )) %>%
-      dplyr::select(pref_code, pref_name, muni_code, muni_name, starts_with("b_delta")) %>%
+      dplyr::select(pref_code, pref_name, pref_name_en, muni_code, muni_name, muni_name_en, starts_with("b_delta")) %>%
       dplyr::mutate(b_delta_total = if_else(b_delta_total > 0, NA_real_, b_delta_total)) %>%
       dplyr::mutate(b_delta_color_group = cut(b_delta_total, breaks = breaks, labels = breaks_label)) %>%
       dplyr::mutate(b_delta_color_group = as.character(b_delta_color_group)) %>%
@@ -652,10 +670,12 @@ server <- function(input, output, session) {
           "<b>Gender: </b>　", popup_gender, "<br>",
           "<b>Age Group: </b>　", popup_age, "<br>",
           "<b>Municipality code: </b>　", sfPolyMssLegend$muni_code, "<br>",
-          "<b>Municipality name: </b>　", sfPolyMssLegend$pref_name, sfPolyMssLegend$muni_name, "<br>",
+          "<b>Municipality name (en): </b>　", sfPolyMssLegend$muni_name_en, ", ", sfPolyMssLegend$pref_name_en, "<br>",
+          "<b>Municipality name (jp): </b>　", sfPolyMssLegend$pref_name, sfPolyMssLegend$muni_name, "<br>",
           "<b>Regional attractive index: </b>　", round(sfPolyMssLegend$b_delta_total, 3), "<br>"
         ),
-        label = paste0(sfPolyMssLegend$pref_name, sfPolyMssLegend$muni_name),
+        popupOptions = list(maxWidth = 500, closeOnClick = TRUE),
+        label = paste0(sfPolyMssLegend$muni_name_en, ", ", sfPolyMssLegend$pref_name_en),
         group = "Regional Attractiveness Index"
       ) %>%
       addPolygons(
@@ -690,8 +710,8 @@ server <- function(input, output, session) {
   observeEvent(input$buttonLineUpdate, {
     
     #Municipality Code
-    inputListLineMuni1 <- as.numeric(strsplit(input$listLineMuni1, " ")[[1]][1])
-    inputListLineMuni2 <- as.numeric(strsplit(input$listLineMuni2, " ")[[1]][1])
+    inputListLineMuni1 <- as.numeric(strsplit(input$listLineMuni1, ", ")[[1]][1])
+    inputListLineMuni2 <- as.numeric(strsplit(input$listLineMuni2, ", ")[[1]][1])
     
     #DataFrame Base Day1
     dfDeltaLineDay1Base <- dfDeltaMss %>%
@@ -751,7 +771,7 @@ server <- function(input, output, session) {
           type = "line",
           color = "#2F7ED8",
           lineWidth = 2,
-          name = paste0(dfDeltaLineDay1Base$muni_name[1], " (Weekday)"),
+          name = paste0(dfDeltaLineDay1Base$muni_name_en[1], " (Weekday)"),
           showInLegend = TRUE
         ) %>%
         hc_add_series(
@@ -760,7 +780,7 @@ server <- function(input, output, session) {
           type = "line",
           color = "#CD5C5C",
           lineWidth = 2,
-          name = paste0(dfDeltaLineDay2Base$muni_name[1], " (Weekend/Holiday)"),
+          name = paste0(dfDeltaLineDay2Base$muni_name_en[1], " (Weekend/Holiday)"),
           showInLegend = TRUE
         ) %>%
         hc_add_series(
@@ -769,7 +789,7 @@ server <- function(input, output, session) {
           type = "line",
           color = "#2F7ED8",
           lineWidth = 2,
-          name = paste0(dfDeltaLineDay1Comp$muni_name[1], " (Weekday)"),
+          name = paste0(dfDeltaLineDay1Comp$muni_name_en[1], " (Weekday)"),
           showInLegend = TRUE,
           dashStyle = "longdash"
         ) %>%
@@ -779,7 +799,7 @@ server <- function(input, output, session) {
           type = "line",
           color = "#CD5C5C",
           lineWidth = 2,
-          name = paste0(dfDeltaLineDay2Comp$muni_name[1], " (Weekend/Holiday)"),
+          name = paste0(dfDeltaLineDay2Comp$muni_name_en[1], " (Weekend/Holiday)"),
           showInLegend = TRUE,
           dashStyle = "longdash"
         ) %>%

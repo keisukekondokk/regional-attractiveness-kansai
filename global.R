@@ -30,9 +30,16 @@ if(!require(tidyverse)) install.packages("tidyverse")
 if(!require(haven)) install.packages("haven")
 if(!require(highcharter)) install.packages("highcharter")
 
+#Municipality
+dfMuni <- readr::read_csv("data/csv/muni_list.csv") 
+dfMuni <- dfMuni %>%
+  dplyr::arrange(muni_code)
+listMuni <- as.list(paste0(dfMuni$muni_code, ", ", dfMuni$muni_name_en, ", ", dfMuni$pref_name_en, " (", dfMuni$pref_name, dfMuni$muni_name, ")"))
+
 #Shapefile (Municipality)
 sfMuni <- sf::read_sf("data/shp_polygon/shp_poly_odflow_kinki_muni.geojson") %>%
-  dplyr::mutate_at(c("pref_code", "muni_code"), as.numeric)
+  dplyr::mutate_at(c("pref_code", "muni_code"), as.numeric) %>%
+  dplyr::left_join(dfMuni %>% select(muni_code, pref_name_en, muni_name_en), by = "muni_code")
 sfMuni <- st_transform(sfMuni, crs = 4326)
 
 #Shapefile (Prefecture)
@@ -45,13 +52,8 @@ sfZone <- sf::read_sf("data/shp_polygon/shp_poly_odflow_kinki.geojson")
 sfZone <- st_transform(sfZone, crs = 4326)
 
 #OD Zone Code
-dfZone <- readr::read_csv("data/csv/csv_zonecode_odflow_muni.csv")
-
-#Municipality
-dfMuni <- readr::read_csv("data/csv/muni_list.csv") 
-dfMuni <- dfMuni %>%
-  dplyr::arrange(muni_code)
-listMuni <- as.list(paste(dfMuni$muni_code, dfMuni$pref_name, dfMuni$muni_name))
+dfZone <- readr::read_csv("data/csv/csv_zonecode_odflow_muni.csv") %>%
+  dplyr::left_join(dfMuni %>% select(muni_code, pref_name_en, muni_name_en), by = "muni_code")
 
 #Estimation Results from Person Trip Survey
 dfDeltaPts <- haven::read_dta("data/dta/dta_estimation_delta_kinki_person_trip_survey.dta")
@@ -64,7 +66,7 @@ sfPolyPts <- sfZone %>%
   dplyr::mutate(odzoneCode = as.numeric(S05a_004)) %>%
   dplyr::left_join(dfZone, by = c("odzoneCode" = "id_odzone"), keep = TRUE) %>%
   dplyr::left_join(dfDeltaPts, by = c("odzoneCode" = "id_odzone")) %>%
-  dplyr::select(odzoneCode, id_odzone, pref_code, pref_name, muni_code, muni_name, starts_with("b_delta"))
+  dplyr::select(odzoneCode, id_odzone, pref_code, pref_name, pref_name_en, muni_code, muni_name, muni_name_en, starts_with("b_delta"))
 
 #Legend for Leaflet
 breaks <- c(-7.0, -5.0, -3.0, -2.75, -2.5, -2.25, -2.0, -1.5, -1.0, 0)

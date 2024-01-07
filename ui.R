@@ -197,7 +197,7 @@ dashboardPage(
               width = "100%",
               label = h4(span(icon("chart-line"), "Select Municipality for Baseline (Solid Line)")),
               choices = listMuni,
-              selected = "28110 兵庫県 神戸市中央区"
+              selected = "28110, Chuo-ku Kobe-shi, Hyogo (兵庫県神戸市中央区)"
             )
           ),
           column(
@@ -207,7 +207,7 @@ dashboardPage(
               width = "100%",
               label = h4(span(icon("chart-line"), "Select Municipality for Comparison (Dashed Line)")),
               choices = listMuni,
-              selected = "27104 大阪府 大阪市此花区"
+              selected = "27104, Konohana-ku Osaka-shi, Osaka (大阪府大阪市此花区)"
             )
           ),
           column(
@@ -252,9 +252,8 @@ dashboardPage(
             )
           ),
           box(
-            title = "Regional Attractiveness Index",
             width = 12,
-            highchartOutput("line1", height = "520px") %>%
+            highchartOutput("line1", height = "550px") %>%
               withSpinner(color = getOption("spinner.color", default = "#3C8EBC"))
           )
         )
